@@ -1,4 +1,412 @@
 <!DOCTYPE html>
+feature/2d-polygon-visualizer-2896988384521183647
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2D Composite Polygon: Perimeter & Area Visualizer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .glow-effect {
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+    }
+    .glow-emerald {
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between">
+
+  <!-- Header Section -->
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-indigo-300 to-emerald-400">
+          2D Composite Polygon: Perimeter & Area Visualizer
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1">
+          Interactive step-by-step visualizer for composite 2D polygon properties.
+        </p>
+      </div>
+
+      <!-- Top Controls -->
+      <div class="flex items-center gap-3">
+        <button id="soundToggleBtn" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-sm font-medium transition shadow">
+          <span id="soundIcon">🔊</span>
+          <span id="soundText">Sound ON</span>
+        </button>
+
+        <button id="resetViewBtn" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition shadow">
+          <span>🔄</span>
+          <span>Reset View</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- Left Column: Canvas & Overlay Controls (7 cols) -->
+      <div class="lg:col-span-7 flex flex-col gap-4">
+        <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 shadow-xl flex flex-col items-center relative">
+
+          <!-- Canvas Bar Header -->
+          <div class="w-full flex justify-between items-center mb-3 px-2">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              2D Interactive Canvas (600 × 400)
+            </span>
+            <div class="flex items-center gap-3">
+              <label class="inline-flex items-center cursor-pointer text-xs text-slate-300 gap-2 bg-slate-900/60 px-3 py-1.5 rounded-lg border border-slate-700 hover:border-slate-600 transition">
+                <input type="checkbox" id="gridToggle" class="sr-only peer">
+                <div class="w-8 h-4 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-indigo-600 relative"></div>
+                <span>Show 1-Unit Square Grid</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- HTML5 Canvas -->
+          <div class="relative w-full overflow-hidden rounded-xl bg-slate-950 border border-slate-800 flex justify-center items-center shadow-inner">
+            <canvas id="polygonCanvas" width="600" height="400" class="block w-full max-w-[600px] h-auto cursor-crosshair"></canvas>
+          </div>
+
+          <!-- Quick Canvas Instructions -->
+          <div class="w-full flex justify-between items-center text-xs text-slate-400 mt-3 px-2">
+            <span>Shape: 8-Sided L-Shaped Composite Polygon</span>
+            <span id="canvasStatusText" class="text-indigo-400 font-medium">Ready</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Mode Tabs & Dynamic Mathematical Reasoning Panel (5 cols) -->
+      <div class="lg:col-span-5 flex flex-col gap-4">
+
+        <!-- Navigation Tabs -->
+        <div class="grid grid-cols-2 gap-2 p-1.5 bg-slate-800/80 border border-slate-700 rounded-2xl shadow">
+          <button id="tabPerimeter" class="py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 bg-amber-500 text-slate-950 shadow-md">
+            <span>📏</span>
+            <span>Perimeter Mode</span>
+          </button>
+          <button id="tabArea" class="py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-700/50">
+            <span>📐</span>
+            <span>Area Mode</span>
+          </button>
+        </div>
+
+        <!-- Mode Content Containers -->
+
+        <!-- TAB 1: PERIMETER MODE CONTENT -->
+        <div id="perimeterContainer" class="flex flex-col gap-4">
+
+          <!-- Interactive Action Panel -->
+          <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 shadow-xl space-y-4">
+            <div class="flex items-center justify-between">
+              <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                <span class="text-amber-400">📏</span> Step-by-Step Perimeter Walkthrough
+              </h2>
+              <span id="stepBadge" class="text-xs px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 font-semibold border border-amber-500/30">
+                Step 0 / 8
+              </span>
+            </div>
+
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Trace each outer boundary segment to calculate the total perimeter around the shape.
+            </p>
+
+            <!-- Control Buttons -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <button id="highlightBtn" class="col-span-1 sm:col-span-2 py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold text-sm transition shadow-lg flex items-center justify-center gap-2">
+                <span id="highlightBtnIcon">▶</span>
+                <span id="highlightBtnText">Highlight Edges Step-by-Step</span>
+              </button>
+
+              <button id="prevEdgeBtn" class="py-2.5 px-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold transition flex items-center justify-center gap-1">
+                <span>⏮</span> Previous
+              </button>
+              <button id="nextEdgeBtn" class="py-2.5 px-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold transition flex items-center justify-center gap-1">
+                Next <span>⏭</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Dynamic Reasoning Log -->
+          <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 shadow-xl space-y-3">
+            <h3 class="text-xs uppercase font-bold text-slate-400 tracking-wider">
+              Mathematical Step Breakdown
+            </h3>
+
+            <div id="perimeterStepDetails" class="bg-slate-900/90 border border-slate-800 rounded-xl p-3.5 text-xs text-slate-300 space-y-2 min-h-[90px] flex flex-col justify-center">
+              <p class="text-slate-400 italic">Click "Highlight Edges Step-by-Step" or use Next to begin tracing boundary segments.</p>
+            </div>
+
+            <!-- Formula Card -->
+            <div class="bg-amber-500/10 border border-amber-500/30 p-4 rounded-xl space-y-1">
+              <p class="text-[11px] uppercase text-amber-400 font-bold tracking-wider">Formula Card</p>
+              <p class="text-sm sm:text-base font-extrabold text-amber-200 tracking-wide font-mono">
+                Total Perimeter = 13 + 10 + 4 + 4 + 4 + 10 + 5 + 16 = 66 cm
+              </p>
+            </div>
+
+            <!-- Concept Note -->
+            <div class="bg-slate-900/60 border border-slate-800 p-3.5 rounded-xl text-xs text-slate-300 space-y-1">
+              <p class="font-bold text-amber-300 flex items-center gap-1.5">
+                <span>💡</span> Concept Note
+              </p>
+              <p class="leading-relaxed text-slate-300">
+                Perimeter is the TOTAL distance around the OUTSIDE boundary of a 2D shape.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: AREA MODE CONTENT -->
+        <div id="areaContainer" class="flex flex-col gap-4 hidden">
+
+          <!-- Area Action Panel -->
+          <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 shadow-xl space-y-4">
+            <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
+              <span class="text-emerald-400">📐</span> Area Decomposition Visualizer
+            </h2>
+
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Decompose this 8-sided composite polygon into simple non-overlapping rectangles to find its total surface area.
+            </p>
+
+            <!-- Split Action Button -->
+            <button id="splitRectsBtn" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold text-sm transition shadow-lg flex items-center justify-center gap-2">
+              <span>✂️</span>
+              <span id="splitBtnText">Split into Simple Rectangles (Shape A + Shape B)</span>
+            </button>
+          </div>
+
+          <!-- Dynamic Reasoning Log & Area Breakdown -->
+          <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 shadow-xl space-y-3">
+            <h3 class="text-xs uppercase font-bold text-slate-400 tracking-wider">
+              Decomposition Breakdown
+            </h3>
+
+            <div id="areaBreakdownPanel" class="bg-slate-900/90 border border-slate-800 rounded-xl p-3.5 text-xs text-slate-300 space-y-2">
+              <div class="grid grid-cols-2 gap-2 text-center">
+                <div class="bg-indigo-950/60 border border-indigo-500/30 rounded-lg p-2.5">
+                  <span class="text-[10px] uppercase font-bold text-indigo-400 block mb-1">Rectangle A</span>
+                  <span class="text-sm font-bold text-indigo-200 block">13 cm × 10 cm</span>
+                  <span class="text-xs text-indigo-300 font-semibold mt-0.5 block">= 130 cm²</span>
+                </div>
+                <div class="bg-teal-950/60 border border-teal-500/30 rounded-lg p-2.5">
+                  <span class="text-[10px] uppercase font-bold text-teal-400 block mb-1">Rectangle B</span>
+                  <span class="text-sm font-bold text-teal-200 block">5 cm × 6 cm</span>
+                  <span class="text-xs text-teal-300 font-semibold mt-0.5 block">= 30 cm²</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Formula Card -->
+            <div class="bg-emerald-500/10 border border-emerald-500/30 p-4 rounded-xl space-y-1">
+              <p class="text-[11px] uppercase text-emerald-400 font-bold tracking-wider">Formula Card</p>
+              <p class="text-sm sm:text-base font-extrabold text-emerald-200 tracking-wide font-mono">
+                Total Area = Area A + Area B = (13 × 10) + (5 × 6) = 130 + 30 = 160 cm²
+              </p>
+            </div>
+
+            <!-- Concept Note -->
+            <div class="bg-slate-900/60 border border-slate-800 p-3.5 rounded-xl text-xs text-slate-300 space-y-1">
+              <p class="font-bold text-emerald-300 flex items-center gap-1.5">
+                <span>💡</span> Concept Note
+              </p>
+              <p class="leading-relaxed text-slate-300">
+                The area of a composite 2D shape is calculated by splitting (decomposing) it into basic non-overlapping shapes and calculating the sum of their individual areas.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 bg-slate-900/80 py-4 px-4 text-center text-xs text-slate-400">
+    2D Composite Polygon Visualizer • Interactive Mathematics Application
+  </footer>
+
+  <!-- JavaScript Logic -->
+  <script>
+    // --- WEB AUDIO API SYNTHESIZER ---
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtx = new AudioContextClass();
+        }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    // Button Click / Pop Sound
+    function playPopSound() {
+      if (!soundEnabled) return;
+      initAudio();
+      if (!audioCtx) return;
+
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(480, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.06);
+
+        gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.06);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.06);
+      } catch (e) {
+        console.warn("Audio playback error:", e);
+      }
+    }
+
+    // Soft Chime / Ding Sound for Edge Highlighting & Area Split
+    function playChimeSound(stepIndex = 0) {
+      if (!soundEnabled) return;
+      initAudio();
+      if (!audioCtx) return;
+
+      try {
+        const baseFreq = 523.25; // C5
+        const scaleOffsets = [0, 2, 4, 7, 9, 12, 14, 16]; // Major Pentatonic
+        const pitchOffset = scaleOffsets[stepIndex % scaleOffsets.length];
+        const freq = baseFreq * Math.pow(2, pitchOffset / 12);
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.35);
+      } catch (e) {
+        console.warn("Audio playback error:", e);
+      }
+    }
+
+    // --- GEOMETRY DATA & STATE MANAGEMENT ---
+    // Canvas dimensions: 600 x 400
+    // Polygon is defined in cm (0 to 16 cm wide, 0 to 13 cm high)
+    // Canvas scale: 20 pixels per cm
+    // Canvas offsets: Margin X = 120, Margin Y = 60
+    const SCALE = 20;
+    const MARGIN_X = 120;
+    const MARGIN_Y = 60;
+    const MAX_CM_HEIGHT = 13;
+
+    function cmToPx(xCm, yCm) {
+      return {
+        x: MARGIN_X + xCm * SCALE,
+        y: MARGIN_Y + (MAX_CM_HEIGHT - yCm) * SCALE
+      };
+    }
+
+    // 8 Outer Edges definition
+    const edges = [
+      { id: 1, p1: {x: 0, y: 0},   p2: {x: 0, y: 13},  len: 13, label: "13 cm", dir: "Left Vertical",   color: "#f59e0b" },
+      { id: 2, p1: {x: 0, y: 13},  p2: {x: 10, y: 13}, len: 10, label: "10 cm", dir: "Top Horizontal", color: "#3b82f6" },
+      { id: 3, p1: {x: 10, y: 13}, p2: {x: 10, y: 9},  len: 4,  label: "4 cm",  dir: "Inner Drop",     color: "#ec4899" },
+      { id: 4, p1: {x: 10, y: 9},  p2: {x: 6, y: 9},   len: 4,  label: "4 cm",  dir: "Inner Step In",  color: "#8b5cf6" },
+      { id: 5, p1: {x: 6, y: 9},   p2: {x: 6, y: 5},   len: 4,  label: "4 cm",  dir: "Inner Drop",     color: "#10b981" },
+      { id: 6, p1: {x: 6, y: 5},   p2: {x: 16, y: 5},  len: 10, label: "10 cm", dir: "Lower Horizontal",color: "#06b6d4" },
+      { id: 7, p1: {x: 16, y: 5},  p2: {x: 16, y: 0},  len: 5,  label: "5 cm",  dir: "Right Drop",     color: "#f43f5e" },
+      { id: 8, p1: {x: 16, y: 0},  p2: {x: 0, y: 0},   len: 16, label: "16 cm", dir: "Base Horizontal", color: "#eab308" }
+    ];
+
+    // App State
+    let currentMode = 'perimeter'; // 'perimeter' | 'area'
+    let currentEdgeStep = 0; // 0 (none highlighted) to 8 (all highlighted)
+    let isAutoPlaying = false;
+    let autoPlayTimer = null;
+    let showGrid = false;
+    let isSplitArea = false;
+
+    // DOM Elements
+    const canvas = document.getElementById('polygonCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const soundToggleBtn = document.getElementById('soundToggleBtn');
+    const soundIcon = document.getElementById('soundIcon');
+    const soundText = document.getElementById('soundText');
+    const resetViewBtn = document.getElementById('resetViewBtn');
+    const gridToggle = document.getElementById('gridToggle');
+
+    const tabPerimeter = document.getElementById('tabPerimeter');
+    const tabArea = document.getElementById('tabArea');
+    const perimeterContainer = document.getElementById('perimeterContainer');
+    const areaContainer = document.getElementById('areaContainer');
+
+    const highlightBtn = document.getElementById('highlightBtn');
+    const highlightBtnText = document.getElementById('highlightBtnText');
+    const highlightBtnIcon = document.getElementById('highlightBtnIcon');
+    const prevEdgeBtn = document.getElementById('prevEdgeBtn');
+    const nextEdgeBtn = document.getElementById('nextEdgeBtn');
+    const stepBadge = document.getElementById('stepBadge');
+    const perimeterStepDetails = document.getElementById('perimeterStepDetails');
+
+    const splitRectsBtn = document.getElementById('splitRectsBtn');
+    const splitBtnText = document.getElementById('splitBtnText');
+    const canvasStatusText = document.getElementById('canvasStatusText');
+
+    // --- CANVAS RENDERING FUNCTIONS ---
+    function renderCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // 1. Draw Grid Overlay if enabled
+      if (showGrid) {
+        drawGrid();
+      }
+
+      // 2. Draw Area Splits / Fills if in Area Mode and split is active
+      if (currentMode === 'area' && isSplitArea) {
+        drawAreaSplits();
+      } else {
+        // Base Polygon Fill
+        drawBasePolygonFill();
+      }
+
+      // 3. Draw Polygon Outer Boundary Edges
+      drawPolygonEdges();
+
+      // 4. Draw Side Length Labels
+      drawEdgeLabels();
+
+      // 5. Draw Area Mode Text Overlay inside Canvas
+      if (currentMode === 'area' && isSplitArea) {
+        drawAreaCanvasLabels();
+      }
+    }
+
+    // Draw 1cm x 1cm Grid
+    function drawGrid() {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+      ctx.lineWidth = 1;
+
+      for (let x = 0; x <= canvas.width; x += SCALE) {
 <html lang="ms">
 <head>
   <meta charset="UTF-8">
@@ -54,18 +462,405 @@
       ctx.lineWidth = 1;
       const gridSize = 20;
       for (let x = 0; x < canvas.width; x += gridSize) {
+main
         ctx.beginPath();
         ctx.moveTo(x, 0);
         ctx.lineTo(x, canvas.height);
         ctx.stroke();
       }
+feature/2d-polygon-visualizer-2896988384521183647
+
+      for (let y = 0; y <= canvas.height; y += SCALE) {
+
       for (let y = 0; y < canvas.height; y += gridSize) {
+main
         ctx.beginPath();
         ctx.moveTo(0, y);
         ctx.lineTo(canvas.width, y);
         ctx.stroke();
       }
 
+ feature/2d-polygon-visualizer-2896988384521183647
+      // Draw bounding origin markers or unit scale
+      ctx.fillStyle = 'rgba(148, 163, 184, 0.4)';
+      ctx.font = '10px sans-serif';
+      ctx.fillText('1 unit = 1 cm', 12, canvas.height - 12);
+      ctx.restore();
+    }
+
+    // Base Polygon Fill (When not split)
+    function drawBasePolygonFill() {
+      ctx.save();
+      ctx.beginPath();
+      const startPx = cmToPx(edges[0].p1.x, edges[0].p1.y);
+      ctx.moveTo(startPx.x, startPx.y);
+
+      edges.forEach(edge => {
+        const p2 = cmToPx(edge.p2.x, edge.p2.y);
+        ctx.lineTo(p2.x, p2.y);
+      });
+
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(30, 41, 59, 0.85)'; // Slate 800
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // Draw Area Splits (Rectangle A and Rectangle B)
+    function drawAreaSplits() {
+      ctx.save();
+
+      // Shape A: (x: 0..10, y: 0..13)
+      const pA1 = cmToPx(0, 13);
+      const pA2 = cmToPx(10, 13);
+      const pA3 = cmToPx(10, 0);
+      const pA4 = cmToPx(0, 0);
+
+      ctx.beginPath();
+      ctx.moveTo(pA1.x, pA1.y);
+      ctx.lineTo(pA2.x, pA2.y);
+      ctx.lineTo(pA3.x, pA3.y);
+      ctx.lineTo(pA4.x, pA4.y);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(99, 102, 241, 0.35)'; // Soft Indigo Fill
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(99, 102, 241, 0.6)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Shape B: (x: 10..16, y: 0..5)
+      const pB1 = cmToPx(10, 5);
+      const pB2 = cmToPx(16, 5);
+      const pB3 = cmToPx(16, 0);
+      const pB4 = cmToPx(10, 0);
+
+      ctx.beginPath();
+      ctx.moveTo(pB1.x, pB1.y);
+      ctx.lineTo(pB2.x, pB2.y);
+      ctx.lineTo(pB3.x, pB3.y);
+      ctx.lineTo(pB4.x, pB4.y);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(20, 184, 166, 0.35)'; // Soft Teal Fill
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(20, 184, 166, 0.6)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Draw Red Dashed Dividing Line at x = 10 (from y=0 to y=13)
+      const lineStart = cmToPx(10, 13);
+      const lineEnd = cmToPx(10, 0);
+
+      ctx.beginPath();
+      ctx.setLineDash([6, 6]);
+      ctx.strokeStyle = '#ef4444'; // Red dashed line
+      ctx.lineWidth = 3;
+      ctx.moveTo(lineStart.x, lineStart.y);
+      ctx.lineTo(lineEnd.x, lineEnd.y);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    // Draw Outer Polygon Boundary Edges
+    function drawPolygonEdges() {
+      edges.forEach((edge, index) => {
+        const p1 = cmToPx(edge.p1.x, edge.p1.y);
+        const p2 = cmToPx(edge.p2.x, edge.p2.y);
+
+        const isHighlighted = (currentMode === 'perimeter' && index < currentEdgeStep);
+        const isCurrentStep = (currentMode === 'perimeter' && index === currentEdgeStep - 1);
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+
+        if (isHighlighted) {
+          ctx.strokeStyle = isCurrentStep ? '#f59e0b' : '#fbbf24'; // Bright Amber / Yellow
+          ctx.lineWidth = isCurrentStep ? 6 : 4;
+          if (isCurrentStep) {
+            ctx.shadowColor = '#f59e0b';
+            ctx.shadowBlur = 12;
+          }
+        } else {
+          ctx.strokeStyle = '#64748b'; // Default Slate 500
+          ctx.lineWidth = 2.5;
+        }
+
+        ctx.stroke();
+        ctx.restore();
+      });
+    }
+
+    // Draw Side Length Labels
+    function drawEdgeLabels() {
+      edges.forEach((edge, index) => {
+        const p1 = cmToPx(edge.p1.x, edge.p1.y);
+        const p2 = cmToPx(edge.p2.x, edge.p2.y);
+        const midX = (p1.x + p2.x) / 2;
+        const midY = (p1.y + p2.y) / 2;
+
+        const isHighlighted = (currentMode === 'perimeter' && index < currentEdgeStep);
+        const isCurrentStep = (currentMode === 'perimeter' && index === currentEdgeStep - 1);
+
+        // Label Offsets
+        let labelX = midX;
+        let labelY = midY;
+
+        switch (edge.id) {
+          case 1: labelX -= 28; break; // Left 13cm
+          case 2: labelY -= 16; break; // Top 10cm
+          case 3: labelX += 24; break; // Drop 4cm
+          case 4: labelY -= 14; break; // Step 4cm
+          case 5: labelX -= 24; break; // Drop 4cm
+          case 6: labelY -= 14; break; // Horiz 10cm
+          case 7: labelX += 24; break; // Drop 5cm
+          case 8: labelY += 22; break; // Base 16cm
+        }
+
+        ctx.save();
+
+        // Draw pill background for label readability
+        ctx.font = 'bold 12px Inter, sans-serif';
+        const textWidth = ctx.measureText(edge.label).width;
+        const paddingX = 6;
+        const paddingY = 3;
+
+        ctx.fillStyle = isCurrentStep ? '#f59e0b' : (isHighlighted ? '#78350f' : '#0f172a');
+        ctx.strokeStyle = isHighlighted ? '#f59e0b' : '#334155';
+        ctx.lineWidth = 1;
+
+        ctx.beginPath();
+        ctx.roundRect(
+          labelX - textWidth / 2 - paddingX,
+          labelY - 8 - paddingY,
+          textWidth + paddingX * 2,
+          16 + paddingY * 2,
+          6
+        );
+        ctx.fill();
+        ctx.stroke();
+
+        // Label Text
+        ctx.fillStyle = isCurrentStep ? '#0f172a' : (isHighlighted ? '#fef3c7' : '#cbd5e1');
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(edge.label, labelX, labelY + 1);
+
+        ctx.restore();
+      });
+    }
+
+    // Draw Labels inside Rectangles A and B when split in Area Mode
+    function drawAreaCanvasLabels() {
+      ctx.save();
+
+      // Shape A Label Center (x: 5 cm, y: 6.5 cm)
+      const centerA = cmToPx(5, 6.5);
+      drawBadgeLabel(centerA.x, centerA.y, "Rectangle A", "13 cm × 10 cm", "= 130 cm²", "#6366f1");
+
+      // Shape B Label Center (x: 13 cm, y: 2.5 cm)
+      const centerB = cmToPx(13, 2.5);
+      drawBadgeLabel(centerB.x, centerB.y, "Rectangle B", "5 cm × 6 cm", "= 30 cm²", "#14b8a6");
+
+      ctx.restore();
+    }
+
+    function drawBadgeLabel(cx, cy, title, dim, area, accentColor) {
+      const boxW = 110;
+      const boxH = 54;
+      const left = cx - boxW / 2;
+      const top = cy - boxH / 2;
+
+      ctx.save();
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+      ctx.strokeStyle = accentColor;
+      ctx.lineWidth = 2;
+
+      ctx.beginPath();
+      ctx.roundRect(left, top, boxW, boxH, 10);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.textAlign = 'center';
+
+      // Title
+      ctx.font = 'bold 11px Inter, sans-serif';
+      ctx.fillStyle = accentColor;
+      ctx.fillText(title, cx, top + 14);
+
+      // Dimension
+      ctx.font = '10px Inter, sans-serif';
+      ctx.fillStyle = '#cbd5e1';
+      ctx.fillText(dim, cx, top + 30);
+
+      // Area value
+      ctx.font = 'bold 11px Inter, sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(area, cx, top + 44);
+
+      ctx.restore();
+    }
+
+    // --- INTERACTION & LOGIC CONTROL ---
+
+    function setMode(mode) {
+      currentMode = mode;
+      stopAutoPlay();
+
+      if (mode === 'perimeter') {
+        tabPerimeter.className = "py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 bg-amber-500 text-slate-950 shadow-md";
+        tabArea.className = "py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-700/50";
+        perimeterContainer.classList.remove('hidden');
+        areaContainer.classList.add('hidden');
+        canvasStatusText.textContent = "Perimeter Mode Active";
+      } else {
+        tabArea.className = "py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 bg-emerald-500 text-slate-950 shadow-md";
+        tabPerimeter.className = "py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-700/50";
+        areaContainer.classList.remove('hidden');
+        perimeterContainer.classList.add('hidden');
+        canvasStatusText.textContent = "Area Mode Active";
+      }
+
+      renderCanvas();
+    }
+
+    // Perimeter Step Operations
+    function updatePerimeterStepUI() {
+      stepBadge.textContent = `Step ${currentEdgeStep} / 8`;
+
+      if (currentEdgeStep === 0) {
+        perimeterStepDetails.innerHTML = `
+          <p class="text-slate-400 italic">Click "Highlight Edges Step-by-Step" or use Next to begin tracing boundary segments.</p>
+        `;
+      } else {
+        const edgeList = edges.slice(0, currentEdgeStep);
+        const currentEdge = edges[currentEdgeStep - 1];
+        const sumText = edgeList.map(e => e.len).join(' + ');
+        const runningSum = edgeList.reduce((acc, e) => acc + e.len, 0);
+
+        perimeterStepDetails.innerHTML = `
+          <div class="flex justify-between items-center border-b border-slate-800 pb-2 mb-1">
+            <span class="font-bold text-amber-400">Highlighted Edge ${currentEdge.id} (${currentEdge.dir})</span>
+            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">${currentEdge.label}</span>
+          </div>
+          <p class="text-slate-300">
+            <span class="text-slate-400">Running Sum:</span>
+            <span class="font-mono font-bold text-amber-200">${sumText} = ${runningSum} cm</span>
+          </p>
+        `;
+      }
+
+      renderCanvas();
+    }
+
+    function stepNextEdge() {
+      if (currentEdgeStep < edges.length) {
+        currentEdgeStep++;
+        playChimeSound(currentEdgeStep - 1);
+        updatePerimeterStepUI();
+      } else {
+        stopAutoPlay();
+      }
+    }
+
+    function stepPrevEdge() {
+      if (currentEdgeStep > 0) {
+        currentEdgeStep--;
+        playPopSound();
+        updatePerimeterStepUI();
+      }
+    }
+
+    function toggleAutoPlay() {
+      if (isAutoPlaying) {
+        stopAutoPlay();
+      } else {
+        if (currentEdgeStep >= edges.length) {
+          currentEdgeStep = 0;
+        }
+        isAutoPlaying = true;
+        highlightBtnText.textContent = "Pause Highlight";
+        highlightBtnIcon.textContent = "⏸";
+        playPopSound();
+        stepNextEdge();
+        autoPlayTimer = setInterval(() => {
+          if (currentEdgeStep < edges.length) {
+            stepNextEdge();
+          } else {
+            stopAutoPlay();
+          }
+        }, 1200);
+      }
+    }
+
+    function stopAutoPlay() {
+      isAutoPlaying = false;
+      if (autoPlayTimer) {
+        clearInterval(autoPlayTimer);
+        autoPlayTimer = null;
+      }
+      highlightBtnText.textContent = "Highlight Edges Step-by-Step";
+      highlightBtnIcon.textContent = "▶";
+    }
+
+    function resetView() {
+      currentEdgeStep = 0;
+      isSplitArea = false;
+      stopAutoPlay();
+      splitBtnText.textContent = "Split into Simple Rectangles (Shape A + Shape B)";
+      updatePerimeterStepUI();
+      playPopSound();
+    }
+
+    // --- EVENT LISTENERS ---
+    soundToggleBtn.addEventListener('click', () => {
+      soundEnabled = !soundEnabled;
+      soundIcon.textContent = soundEnabled ? '🔊' : '🔇';
+      soundText.textContent = soundEnabled ? 'Sound ON' : 'Mute';
+      if (soundEnabled) playPopSound();
+    });
+
+    resetViewBtn.addEventListener('click', resetView);
+
+    gridToggle.addEventListener('change', (e) => {
+      showGrid = e.target.checked;
+      playPopSound();
+      renderCanvas();
+    });
+
+    tabPerimeter.addEventListener('click', () => {
+      playPopSound();
+      setMode('perimeter');
+    });
+
+    tabArea.addEventListener('click', () => {
+      playPopSound();
+      setMode('area');
+    });
+
+    highlightBtn.addEventListener('click', toggleAutoPlay);
+    nextEdgeBtn.addEventListener('click', () => { stopAutoPlay(); stepNextEdge(); });
+    prevEdgeBtn.addEventListener('click', () => { stopAutoPlay(); stepPrevEdge(); });
+
+    splitRectsBtn.addEventListener('click', () => {
+      isSplitArea = !isSplitArea;
+      if (isSplitArea) {
+        playChimeSound(3);
+        splitBtnText.textContent = "Rejoin Composite Shape";
+      } else {
+        playPopSound();
+        splitBtnText.textContent = "Split into Simple Rectangles (Shape A + Shape B)";
+      }
+      renderCanvas();
+    });
+
+    // --- INITIAL RENDER ---
+    window.addEventListener('load', () => {
+      setMode('perimeter');
+      updatePerimeterStepUI();
+    });
+=======
       // Vertices of the 8-sided L-shaped polygon
       const vertices = [
         { x: 140, y: 70 },  // V0: Top-left start
@@ -157,6 +952,7 @@
     }
 
     window.addEventListener('DOMContentLoaded', drawPolygon);
+main
   </script>
 </body>
 </html>
