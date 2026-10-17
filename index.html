@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eksplorasi Perimeter & Luas Poligon (KSSR Matematik)</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 font-sans flex flex-col items-center justify-start p-4 md:p-8">
+
+  <!-- Header -->
+  <header class="w-full max-w-4xl text-center mb-6">
+    <div class="inline-block bg-indigo-100 text-indigo-800 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider mb-2">
+      DSKP 6.3 - KSSR Matematik
+    </div>
+    <h1 class="text-2xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+      Eksplorasi Perimeter & Luas Poligon
+    </h1>
+    <p class="text-slate-600 mt-2 text-sm md:text-base">
+      Visualisasi poligon 2D 8-sisi untuk pembelajaran bentuk terbitan / gabungan.
+    </p>
+  </header>
+
+  <!-- Main Visual Card -->
+  <main class="w-full max-w-4xl bg-white rounded-2xl shadow-xl p-6 flex flex-col items-center border border-slate-200">
+    <div class="w-full flex justify-between items-center mb-4">
+      <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+        <span class="w-3 h-3 bg-indigo-600 rounded-full inline-block"></span>
+        Bentuk Poligon 8 Sisi
+      </h2>
+      <span class="text-xs text-slate-500 font-medium bg-slate-100 px-2.5 py-1 rounded-md">
+        Canvas: 600 &times; 400
+      </span>
+    </div>
+
+    <!-- Canvas Wrapper -->
+    <div class="relative bg-slate-50 rounded-xl p-4 border border-slate-200 flex items-center justify-center overflow-auto max-w-full">
+      <canvas id="polygonCanvas" width="600" height="400" class="block rounded-lg bg-white shadow-inner"></canvas>
+    </div>
+  </main>
+
+  <script>
+    function drawPolygon() {
+      const canvas = document.getElementById('polygonCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      // Clear Canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw subtle background grid for mathematical context
+      ctx.strokeStyle = '#f1f5f9';
+      ctx.lineWidth = 1;
+      const gridSize = 20;
+      for (let x = 0; x < canvas.width; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < canvas.height; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+
+      // Vertices of the 8-sided L-shaped polygon
+      const vertices = [
+        { x: 140, y: 70 },  // V0: Top-left start
+        { x: 340, y: 70 },  // V1: Top-right notch start (10cm)
+        { x: 340, y: 150 }, // V2: Inner notch down (4cm)
+        { x: 260, y: 150 }, // V3: Inner notch left (4cm)
+        { x: 260, y: 230 }, // V4: Down to step (4cm)
+        { x: 460, y: 230 }, // V5: Step right (10cm)
+        { x: 460, y: 330 }, // V6: Down to bottom (5cm)
+        { x: 140, y: 330 }  // V7: Bottom-left (16cm)
+      ];
+
+      // Side length labels corresponding to each segment (from vertices[i] to vertices[i+1])
+      const labels = [
+        { text: '10 cm', offsetX: 0, offsetY: -18 }, // Seg 0: V0 -> V1
+        { text: '4 cm',  offsetX: 18, offsetY: 0 },  // Seg 1: V1 -> V2
+        { text: '4 cm',  offsetX: 0, offsetY: -14 }, // Seg 2: V2 -> V3
+        { text: '4 cm',  offsetX: -18, offsetY: 0 }, // Seg 3: V3 -> V4
+        { text: '10 cm', offsetX: 0, offsetY: -14 }, // Seg 4: V4 -> V5
+        { text: '5 cm',  offsetX: 18, offsetY: 0 },  // Seg 5: V5 -> V6
+        { text: '16 cm', offsetX: 0, offsetY: 22 },  // Seg 6: V6 -> V7
+        { text: '13 cm', offsetX: -22, offsetY: 0 }  // Seg 7: V7 -> V0
+      ];
+
+      // Fill & Stroke Polygon
+      ctx.beginPath();
+      ctx.moveTo(vertices[0].x, vertices[0].y);
+      for (let i = 1; i < vertices.length; i++) {
+        ctx.lineTo(vertices[i].x, vertices[i].y);
+      }
+      ctx.closePath();
+
+      // Soft Indigo fill
+      ctx.fillStyle = '#e0e7ff';
+      ctx.fill();
+
+      // Bold Stroke
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#4338ca';
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+
+      // Draw Vertices (corner points)
+      vertices.forEach(v => {
+        ctx.beginPath();
+        ctx.arc(v.x, v.y, 5, 0, Math.PI * 2);
+        ctx.fillStyle = '#1e1b4b';
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#ffffff';
+        ctx.stroke();
+      });
+
+      // Draw Side Labels with Pill/Badge Backgrounds
+      for (let i = 0; i < vertices.length; i++) {
+        const p1 = vertices[i];
+        const p2 = vertices[(i + 1) % vertices.length];
+        const label = labels[i];
+
+        // Midpoint of segment
+        const midX = (p1.x + p2.x) / 2 + label.offsetX;
+        const midY = (p1.y + p2.y) / 2 + label.offsetY;
+
+        ctx.font = 'bold 12px sans-serif';
+        const textMetrics = ctx.measureText(label.text);
+        const paddingX = 7;
+        const paddingY = 4;
+        const badgeWidth = textMetrics.width + paddingX * 2;
+        const badgeHeight = 20;
+
+        // Draw Badge Background
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath();
+        ctx.roundRect(
+          midX - badgeWidth / 2,
+          midY - badgeHeight / 2,
+          badgeWidth,
+          badgeHeight,
+          6
+        );
+        ctx.fill();
+
+        // Draw Label Text
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(label.text, midX, midY);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', drawPolygon);
+  </script>
+</body>
+</html>
