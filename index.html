@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Year 6 Math 3D Space: Composite Shapes | Peneroka Bentuk Gubahan 3D</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Three.js and OrbitControls -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- Canvas Confetti for quiz celebration -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        display: ['Fredoka', 'sans-serif'],
+                        body: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            blue: '#3b82f6',
+                            purple: '#8b5cf6',
+                            magenta: '#ec4899',
+                            coral: '#f43f5e',
+                            green: '#10b981',
+                            amber: '#f59e0b',
+                            bg: '#f0f4f8'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #f3e8ff 50%, #fce7f3 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Custom Glassmorphism */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+        }
+
+        .glass-card-dark {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Pulse glow animation for contact face highlighting */
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(244, 63, 94, 0.6); }
+            50% { box-shadow: 0 0 28px rgba(244, 63, 94, 0.95); }
+        }
+
+        .contact-glow {
+            animation: pulseGlow 2s infinite ease-in-out;
+        }
+
+        /* Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range]:focus {
+            outline: none;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 12px;
+            cursor: pointer;
+            background: #cbd5e1;
+            border-radius: 9999px;
+            border: 2px solid #ffffff;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            height: 26px;
+            width: 26px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -8px;
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.5), 0 0 0 3px white;
+            transition: transform 0.15s ease, background-color 0.15s ease;
+        }
+
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        /* Separation slider thumb variant */
+        input[type=range].sep-slider::-webkit-slider-thumb {
+            background: linear-gradient(135deg, #ec4899, #f43f5e);
+            box-shadow: 0 4px 10px rgba(244, 63, 94, 0.5), 0 0 0 3px white;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(241, 245, 249, 0.5);
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* 3D Label styling */
+        .label-3d {
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            pointer-events: none;
+            white-space: nowrap;
+            user-select: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+            transition: opacity 0.3s ease;
+        }
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col min-h-screen">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="sticky top-0 z-50 glass-card border-b border-white/50 px-4 lg:px-8 py-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <!-- App Logo & Title -->
+            <div class="flex items-center space-x-3">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-pink-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30 transform hover:rotate-6 transition-transform">
+                    <i class="fa-solid font-bold text-xl fa-shapes"></i>
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-200">KSSR Semakan Year 6</span>
+                        <span class="text-xs font-semibold text-slate-500 hidden sm:inline" data-i18n="topic_code">Topic 6.0 Space</span>
+                    </div>
+                    <h1 class="text-lg sm:text-xl font-display font-bold bg-gradient-to-r from-slate-900 via-indigo-950 to-purple-900 bg-clip-text text-transparent">
+                        <span data-i18n="app_title">Composite 3D Shape Surface Area Explorer</span>
+                    </h1>
+                </div>
+            </div>
+
+            <!-- Header Actions -->
+            <div class="flex items-center space-x-2 sm:space-x-4">
+                <!-- Sound Toggle -->
+                <button id="soundToggleBtn" onclick="toggleAudio()" class="p-2.5 rounded-xl bg-white/80 hover:bg-white text-slate-700 border border-slate-200/80 shadow-sm transition-all hover:scale-105 active:scale-95" title="Toggle Sound">
+                    <i id="soundIcon" class="fa-solid fa-volume-high text-indigo-600"></i>
+                </button>
+
+                <!-- Language Selector Toggle -->
+                <div class="bg-slate-200/80 p-1 rounded-xl flex items-center space-x-1 border border-slate-300/60">
+                    <button id="langENBtn" onclick="setLanguage('en')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-indigo-700 shadow-sm">
+                        🇬🇧 English
+                    </button>
+                    <button id="langBMBtn" onclick="setLanguage('bm')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:text-slate-900">
+                        🇲🇾 B. Melayu
+                    </button>
+                </div>
+
+                <!-- Guided Tutorial Button -->
+                <button onclick="openTutorialModal()" class="hidden md:flex items-center space-x-2 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold text-xs shadow-md shadow-amber-500/20 hover:brightness-110 transition-all hover:scale-105">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <span data-i18n="guide_btn">Guided Lesson</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT/TOP: 3D INTERACTIVE CANVAS & QUICK CONTROLS (7 COLUMNS) -->
+        <section class="lg:col-span-7 flex flex-col space-y-4">
+            <!-- 3D Canvas Container -->
+            <div class="relative w-full h-[430px] sm:h-[480px] lg:h-[520px] glass-card rounded-3xl overflow-hidden border-2 border-white/80 shadow-2xl flex flex-col">
+
+                <!-- 3D Render Target Canvas -->
+                <div id="canvas3dContainer" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+
+                <!-- Floating Canvas Controls Overlay (Top Right) -->
+                <div class="absolute top-4 right-4 flex flex-col space-y-2 z-10">
+                    <button onclick="resetCameraView()" class="px-3 py-2 bg-white/90 hover:bg-white text-slate-700 text-xs font-bold rounded-xl shadow-md border border-slate-200 backdrop-blur-sm flex items-center space-x-2 transition hover:scale-105" title="Reset View">
+                        <i class="fa-solid fa-rotate-left text-indigo-600"></i>
+                        <span data-i18n="btn_reset_cam">Reset 3D View</span>
+                    </button>
+
+                    <button onclick="setCameraPreset('top')" class="px-3 py-2 bg-white/90 hover:bg-white text-slate-700 text-xs font-bold rounded-xl shadow-md border border-slate-200 backdrop-blur-sm flex items-center space-x-2 transition hover:scale-105" title="Top View">
+                        <i class="fa-solid fa-eye text-indigo-600"></i>
+                        <span data-i18n="btn_top_cam">Top View</span>
+                    </button>
+
+                    <button onclick="setCameraPreset('contact')" class="px-3 py-2 bg-white/90 hover:bg-white text-slate-700 text-xs font-bold rounded-xl shadow-md border border-slate-200 backdrop-blur-sm flex items-center space-x-2 transition hover:scale-105" title="Zoom to Contact Face">
+                        <i class="fa-solid fa-magnifying-glass-plus text-rose-600"></i>
+                        <span data-i18n="btn_contact_zoom">Contact Face View</span>
+                    </button>
+                </div>
+
+                <!-- Floating Canvas Info Badge (Top Left) -->
+                <div class="absolute top-4 left-4 z-10">
+                    <div class="px-3.5 py-2 bg-slate-900/80 text-white backdrop-blur-md rounded-2xl shadow-lg border border-white/20 text-xs space-y-0.5">
+                        <div class="flex items-center space-x-2 font-bold text-indigo-300">
+                            <i class="fa-solid fa-cube"></i>
+                            <span data-i18n="shape_title">Square Pyramid + Rectangular Cuboid</span>
+                        </div>
+                        <div class="text-[11px] text-slate-300" id="currentViewStateText" data-i18n="mode_attached">
+                            Attached State (Composite Solid)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floating Dimensions & Highlight Toggles (Bottom Left) -->
+                <div class="absolute bottom-4 left-4 z-10 flex flex-wrap gap-2">
+                    <button id="toggleLabelsBtn" onclick="toggleDimensions()" class="px-3 py-1.5 bg-white/90 hover:bg-white text-slate-800 text-xs font-bold rounded-xl shadow border border-slate-200 backdrop-blur-md flex items-center space-x-1.5 transition">
+                        <i id="labelsIcon" class="fa-solid fa-ruler-combined text-indigo-600"></i>
+                        <span id="labelsBtnText" data-i18n="btn_hide_dims">Hide Dimensions</span>
+                    </button>
+
+                    <button id="toggleHighlightBtn" onclick="toggleContactHighlight()" class="px-3 py-1.5 bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold rounded-xl shadow-md flex items-center space-x-1.5 transition">
+                        <i class="fa-solid fa-highlighter"></i>
+                        <span id="highlightBtnText" data-i18n="btn_contact_glow">Contact Glow: ON</span>
+                    </button>
+                </div>
+
+                <!-- Rotation Guide Overlay (Bottom Right) -->
+                <div class="absolute bottom-4 right-4 z-10 pointer-events-none text-slate-500/80 text-[11px] font-semibold bg-white/70 px-2.5 py-1 rounded-lg backdrop-blur-sm border border-slate-200">
+                    <i class="fa-solid fa-hand-pointer mr-1 text-indigo-500"></i> <span data-i18n="orbit_hint">Drag to Rotate | Scroll to Zoom</span>
+                </div>
+            </div>
+
+            <!-- SLIDER CONTROLS PANEL -->
+            <div class="glass-card rounded-3xl p-5 border border-white/80 shadow-xl space-y-5">
+
+                <!-- 1. SEPARATE SOLIDS SLIDER (Exploded View) -->
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label for="separationSlider" class="flex items-center space-x-2 font-display font-bold text-slate-800 text-sm sm:text-base">
+                            <span class="w-7 h-7 rounded-lg bg-pink-100 text-pink-600 flex items-center justify-center font-bold text-xs border border-pink-200">1</span>
+                            <span data-i18n="slider_sep_title">Separate Solids (0cm - 10cm)</span>
+                        </label>
+                        <span id="sepValueBadge" class="px-3 py-1 rounded-full text-xs font-extrabold bg-pink-100 text-pink-700 border border-pink-300">
+                            0.0 cm
+                        </span>
+                    </div>
+
+                    <div class="relative flex items-center">
+                        <input id="separationSlider" type="range" min="0" max="10" step="0.1" value="0" class="sep-slider" oninput="onSeparationChange(this.value)">
+                    </div>
+
+                    <div class="flex justify-between text-[11px] font-bold text-slate-500 px-1">
+                        <span data-i18n="sep_label_attached">Attached (0 cm)</span>
+                        <span class="text-pink-600 font-extrabold" data-i18n="sep_label_hidden_revealed">Hidden Contact Faces Revealed!</span>
+                        <span data-i18n="sep_label_fully_separated">Fully Separated (10 cm)</span>
+                    </div>
+                </div>
+
+                <hr class="border-slate-200/80">
+
+                <!-- 2. 2D NET UNFOLDING SLIDER -->
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label for="unfoldSlider" class="flex items-center space-x-2 font-display font-bold text-slate-800 text-sm sm:text-base">
+                            <span class="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs border border-indigo-200">2</span>
+                            <span data-i18n="slider_unfold_title">2D Net Unfolding (0% - 100%)</span>
+                        </label>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="toggleQuickUnfold()" class="px-2.5 py-1 text-xs font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg border border-indigo-200 transition">
+                                <span id="quickUnfoldText" data-i18n="btn_quick_unfold">Unfold All</span>
+                            </button>
+                            <span id="unfoldValueBadge" class="px-3 py-1 rounded-full text-xs font-extrabold bg-indigo-100 text-indigo-700 border border-indigo-300">
+                                0%
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="relative flex items-center">
+                        <input id="unfoldSlider" type="range" min="0" max="100" step="1" value="0" oninput="onUnfoldChange(this.value)">
+                    </div>
+
+                    <div class="flex justify-between text-[11px] font-bold text-slate-500 px-1">
+                        <span data-i18n="unfold_3d">3D Composite Solid (0%)</span>
+                        <span data-i18n="unfold_flat">Flat 2D Net Layout (100%)</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- RIGHT/BOTTOM: MATHEMATICAL REASONING & MISCONCEPTION PANEL (5 COLUMNS) -->
+        <section class="lg:col-span-5 flex flex-col space-y-5">
+
+            <!-- MISCONCEPTION ALERT BOX (Educational Purpose) -->
+            <div id="misconceptionCard" class="glass-card rounded-3xl p-5 border-2 border-rose-300/80 bg-gradient-to-br from-rose-50/90 via-white/80 to-pink-50/90 shadow-xl relative overflow-hidden transition-all">
+                <div class="absolute -right-6 -top-6 w-24 h-24 bg-rose-500/10 rounded-full blur-xl pointer-events-none"></div>
+
+                <div class="flex items-start space-x-3">
+                    <div class="w-10 h-10 rounded-2xl bg-rose-500 text-white flex items-center justify-center font-bold text-lg shadow-md shadow-rose-500/30 flex-shrink-0 mt-0.5">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <h2 class="font-display font-bold text-rose-900 text-base flex items-center justify-between">
+                            <span data-i18n="misconception_header">Common Year 6 Misconception!</span>
+                            <span class="text-xs bg-rose-200 text-rose-800 font-extrabold px-2 py-0.5 rounded-full" data-i18n="key_concept">Key Concept</span>
+                        </h2>
+                        <p class="text-xs text-rose-950 font-medium leading-relaxed" data-i18n="misconception_desc">
+                            Pupils often mistakenly add the full surface area of Solid A + Solid B (<span class="font-bold underline text-rose-700">236 + 90 = 326 cm²</span>). When 3D shapes are joined together, the contact interface faces are <strong>hidden inside</strong> and are NO LONGER part of the outer surface!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Highlight Formula Badge -->
+                <div class="mt-3 p-3 bg-white/90 rounded-2xl border border-rose-200 shadow-inner flex items-center justify-between">
+                    <div class="text-xs font-bold text-slate-700" data-i18n="contact_deduction_note">
+                        Contact Area Hidden = 2 faces × 25 cm² = 50 cm²
+                    </div>
+                    <div class="text-xs font-black text-rose-600 bg-rose-100 px-2.5 py-1 rounded-lg border border-rose-300">
+                        - 50 cm²
+                    </div>
+                </div>
+            </div>
+
+            <!-- MATHEMATICAL REASONING PANEL (Real-Time Live Formula Updates) -->
+            <div class="glass-card rounded-3xl p-5 border border-white/80 shadow-xl flex-1 flex flex-col justify-between space-y-4">
+
+                <div>
+                    <div class="flex items-center justify-between mb-3 border-b border-slate-200/80 pb-2">
+                        <h2 class="font-display font-bold text-slate-900 text-base flex items-center space-x-2">
+                            <i class="fa-solid fa-calculator text-indigo-600"></i>
+                            <span data-i18n="reasoning_title">Mathematical Reasoning</span>
+                        </h2>
+                        <span class="text-xs bg-indigo-100 text-indigo-700 font-extrabold px-2.5 py-1 rounded-full border border-indigo-200" data-i18n="real_time_tag">
+                            Live Calculation
+                        </span>
+                    </div>
+
+                    <!-- Formula Banner -->
+                    <div class="bg-indigo-950 text-white p-3.5 rounded-2xl shadow-md text-xs sm:text-sm font-mono font-bold leading-relaxed space-y-1 border border-indigo-800">
+                        <div class="text-indigo-300 font-sans text-[11px] font-semibold uppercase tracking-wider" data-i18n="formula_label">
+                            General Formula:
+                        </div>
+                        <div class="text-pink-300">
+                            Total SA = SA(Cuboid) + SA(Pyramid) - (2 × Contact Area)
+                        </div>
+                    </div>
+
+                    <!-- Step-by-Step Numerical Calculations -->
+                    <div class="mt-4 space-y-3">
+
+                        <!-- Solid A: Cuboid -->
+                        <div class="p-3 bg-blue-50/70 rounded-2xl border border-blue-200 flex items-center justify-between">
+                            <div class="space-y-0.5">
+                                <div class="text-xs font-bold text-blue-900 flex items-center space-x-1.5">
+                                    <span class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span>
+                                    <span data-i18n="solid_a_title">Solid A: Rectangular Cuboid</span>
+                                </div>
+                                <div class="text-[11px] text-blue-700 font-medium">
+                                    2 × (8×5 + 8×6 + 5×6) = 2 × (40 + 48 + 30)
+                                </div>
+                            </div>
+                            <div class="text-sm font-black text-blue-900 font-mono bg-white px-2.5 py-1 rounded-xl shadow-sm border border-blue-200">
+                                236 cm²
+                            </div>
+                        </div>
+
+                        <!-- Solid B: Square Pyramid -->
+                        <div class="p-3 bg-purple-50/70 rounded-2xl border border-purple-200 flex items-center justify-between">
+                            <div class="space-y-0.5">
+                                <div class="text-xs font-bold text-purple-900 flex items-center space-x-1.5">
+                                    <span class="w-3 h-3 rounded-full bg-purple-500 inline-block"></span>
+                                    <span data-i18n="solid_b_title">Solid B: Square Pyramid</span>
+                                </div>
+                                <div class="text-[11px] text-purple-700 font-medium">
+                                    Base (5×5) + 4 Triangles (½ × 5 × 6.5) = 25 + 65
+                                </div>
+                            </div>
+                            <div class="text-sm font-black text-purple-900 font-mono bg-white px-2.5 py-1 rounded-xl shadow-sm border border-purple-200">
+                                90 cm²
+                            </div>
+                        </div>
+
+                        <!-- Contact Interface Area -->
+                        <div id="contactMathBox" class="p-3 bg-rose-50/90 rounded-2xl border-2 border-rose-300 flex items-center justify-between transition-all">
+                            <div class="space-y-0.5">
+                                <div class="text-xs font-bold text-rose-900 flex items-center space-x-1.5">
+                                    <span class="w-3 h-3 rounded-full bg-rose-500 inline-block contact-glow"></span>
+                                    <span data-i18n="contact_interface_title">Contact Interface Area (Overlapping)</span>
+                                </div>
+                                <div class="text-[11px] text-rose-800 font-medium">
+                                    5 cm × 5 cm = <strong>25 cm²</strong> (2 faces = 50 cm²)
+                                </div>
+                            </div>
+                            <div class="text-sm font-black text-rose-700 font-mono bg-white px-2.5 py-1 rounded-xl shadow-sm border border-rose-300">
+                                - 50 cm²
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- TOTAL CALCULATION RESULT BOX -->
+                <div class="p-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg space-y-1 transform transition hover:scale-[1.01]">
+                    <div class="flex items-center justify-between text-xs font-bold text-emerald-100 uppercase tracking-wider">
+                        <span data-i18n="total_sa_label">Correct Total Surface Area</span>
+                        <span id="sepStatusIndicator" class="bg-emerald-800/80 px-2 py-0.5 rounded text-[10px] text-emerald-200">
+                            Attached
+                        </span>
+                    </div>
+
+                    <div class="flex items-baseline justify-between">
+                        <div class="text-xs font-mono text-emerald-100">
+                            236 + 90 - 50 =
+                        </div>
+                        <div class="text-2xl sm:text-3xl font-black font-display tracking-tight text-white">
+                            276 <span class="text-base font-bold">cm²</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- QUICK INTERACTIVE QUIZ & MISCONCEPTION CHECK -->
+            <div class="glass-card rounded-3xl p-5 border border-white/80 shadow-xl space-y-3">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-display font-bold text-slate-800 text-sm flex items-center space-x-2">
+                        <i class="fa-solid fa-graduation-cap text-indigo-600"></i>
+                        <span data-i18n="quiz_title">Quick Misconception Quiz</span>
+                    </h3>
+                    <span id="quizScoreBadge" class="text-xs font-extrabold bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full border border-amber-300">
+                        ⭐ Year 6 Challenge
+                    </span>
+                </div>
+
+                <p class="text-xs text-slate-600 font-medium" data-i18n="quiz_q1">
+                    If the total surface area of Solid A is 236 cm² and Solid B is 90 cm², with a contact square face of 25 cm², why is the total surface area NOT 326 cm²?
+                </p>
+
+                <div class="space-y-2 pt-1" id="quizOptions">
+                    <button onclick="checkQuizAnswer(false, this)" class="w-full text-left p-2.5 text-xs rounded-xl bg-slate-100 hover:bg-slate-200/80 border border-slate-200 font-semibold text-slate-700 transition flex items-start space-x-2">
+                        <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-[10px] flex-shrink-0 mt-0.5">A</span>
+                        <span data-i18n="quiz_opt_a">Because 236 + 90 equals 300 cm².</span>
+                    </button>
+
+                    <button onclick="checkQuizAnswer(true, this)" class="w-full text-left p-2.5 text-xs rounded-xl bg-slate-100 hover:bg-slate-200/80 border border-slate-200 font-semibold text-slate-700 transition flex items-start space-x-2">
+                        <span class="w-5 h-5 rounded-full bg-indigo-200 text-indigo-800 flex items-center justify-center font-bold text-[10px] flex-shrink-0 mt-0.5">B</span>
+                        <span data-i18n="quiz_opt_b">Because 2 contact faces (top of cuboid & bottom of pyramid) become internal and are no longer outer surfaces.</span>
+                    </button>
+
+                    <button onclick="checkQuizAnswer(false, this)" class="w-full text-left p-2.5 text-xs rounded-xl bg-slate-100 hover:bg-slate-200/80 border border-slate-200 font-semibold text-slate-700 transition flex items-start space-x-2">
+                        <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-[10px] flex-shrink-0 mt-0.5">C</span>
+                        <span data-i18n="quiz_opt_c">Because we only subtract 1 contact face instead of 2.</span>
+                    </button>
+                </div>
+
+                <div id="quizFeedback" class="hidden p-3 rounded-2xl text-xs font-bold transition-all"></div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- GUIDED TUTORIAL MODAL -->
+    <div id="tutorialModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+        <div class="glass-card max-w-lg w-full rounded-3xl p-6 border-2 border-white/80 shadow-2xl space-y-4 relative transform scale-95 transition-transform duration-300">
+            <button onclick="closeTutorialModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold text-2xl shadow-lg shadow-indigo-600/30">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <h3 class="font-display font-bold text-slate-900 text-lg" data-i18n="modal_title">
+                        Year 6 Lesson Guide: Composite 3D Shapes
+                    </h3>
+                    <p class="text-xs text-indigo-600 font-bold" data-i18n="modal_subtitle">
+                        KSSR Semakan Mathematics Topic 6.0 Space
+                    </p>
+                </div>
+            </div>
+
+            <div class="space-y-3 text-xs text-slate-700 leading-relaxed max-h-[60vh] overflow-y-auto pr-2">
+                <div class="p-3 bg-indigo-50 rounded-2xl border border-indigo-200 space-y-1">
+                    <div class="font-bold text-indigo-900 flex items-center space-x-1.5">
+                        <i class="fa-solid fa-bullseye text-indigo-600"></i>
+                        <span data-i18n="modal_step1_title">1. What is a Composite 3D Shape?</span>
+                    </div>
+                    <p data-i18n="modal_step1_desc">
+                        A composite 3D shape is formed by attaching two or more simple solids together. In this lesson, we attach a Square Pyramid on top of a Rectangular Cuboid.
+                    </p>
+                </div>
+
+                <div class="p-3 bg-pink-50 rounded-2xl border border-pink-200 space-y-1">
+                    <div class="font-bold text-pink-900 flex items-center space-x-1.5">
+                        <i class="fa-solid fa-eye text-pink-600"></i>
+                        <span data-i18n="modal_step2_title">2. Use Slider 1: Separate Solids</span>
+                    </div>
+                    <p data-i18n="modal_step2_desc">
+                        Pull the 'Separate Solids' slider to lift the pyramid up. Notice the bright red/magenta faces on both solids! That is the overlapping contact interface (5cm x 5cm = 25 cm²).
+                    </p>
+                </div>
+
+                <div class="p-3 bg-purple-50 rounded-2xl border border-purple-200 space-y-1">
+                    <div class="font-bold text-purple-900 flex items-center space-x-1.5">
+                        <i class="fa-solid fa-layer-group text-purple-600"></i>
+                        <span data-i18n="modal_step3_title">3. Use Slider 2: 2D Net Unfolding</span>
+                    </div>
+                    <p data-i18n="modal_step3_desc">
+                        Pull the '2D Net Unfolding' slider to flatten all exposed faces. Count all exposed faces and observe how the contact face is excluded from outer surface calculation!
+                    </p>
+                </div>
+            </div>
+
+            <button onclick="closeTutorialModal()" class="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-lg shadow-indigo-600/30 transition hover:scale-[1.02]">
+                <span data-i18n="modal_start_btn">Got it! Start Exploring 🚀</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="mt-auto border-t border-slate-200/80 bg-white/60 backdrop-blur-md py-4 text-center text-xs font-semibold text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <div>
+                <span data-i18n="footer_curriculum">KSSR Semakan Year 6 Mathematics • Topic 6.0 Space</span>
+            </div>
+            <div class="text-slate-400">
+                Interactive Learning Tool for Primary Mathematics
+            </div>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT & THREE.JS LOGIC -->
+    <script>
+        /* ==========================================================================
+           1. TRANSLATION DICTIONARY (BILINGUAL: ENGLISH & BAHASA MELAYU)
+           ========================================================================== */
+        const i18n = {
+            en: {
+                topic_code: "Topic 6.0 Space",
+                app_title: "Composite 3D Shape Surface Area Explorer",
+                guide_btn: "Guided Lesson",
+                btn_reset_cam: "Reset 3D View",
+                btn_top_cam: "Top View",
+                btn_contact_zoom: "Contact Face View",
+                shape_title: "Square Pyramid + Rectangular Cuboid",
+                mode_attached: "Attached State (Composite Solid)",
+                mode_separated: "Separated Solids (Exploded View)",
+                mode_unfolded: "2D Net Unfolded State",
+                btn_hide_dims: "Hide Dimensions",
+                btn_show_dims: "Show Dimensions",
+                btn_contact_glow: "Contact Glow: ON",
+                btn_contact_glow_off: "Contact Glow: OFF",
+                orbit_hint: "Drag to Rotate | Scroll to Zoom",
+                slider_sep_title: "Separate Solids (0cm - 10cm)",
+                sep_label_attached: "Attached (0 cm)",
+                sep_label_hidden_revealed: "Hidden Contact Faces Revealed!",
+                sep_label_fully_separated: "Fully Separated (10 cm)",
+                slider_unfold_title: "2D Net Unfolding (0% - 100%)",
+                btn_quick_unfold: "Unfold All",
+                btn_quick_fold: "Fold to 3D",
+                unfold_3d: "3D Composite Solid (0%)",
+                unfold_flat: "Flat 2D Net Layout (100%)",
+                misconception_header: "Common Year 6 Misconception!",
+                key_concept: "Key Concept",
+                misconception_desc: "Pupils often mistakenly add the full surface area of Solid A + Solid B (236 + 90 = 326 cm²). When 3D shapes are joined together, the contact interface faces are hidden inside and are NO LONGER part of the outer surface!",
+                contact_deduction_note: "Contact Area Hidden = 2 faces × 25 cm² = 50 cm²",
+                reasoning_title: "Mathematical Reasoning",
+                real_time_tag: "Live Calculation",
+                formula_label: "General Formula:",
+                solid_a_title: "Solid A: Rectangular Cuboid (8cm × 5cm × 6cm)",
+                solid_b_title: "Solid B: Square Pyramid (5cm × 5cm base, 6.5cm slant height)",
+                contact_interface_title: "Contact Interface Area (Overlapping)",
+                total_sa_label: "Correct Total Surface Area",
+                quiz_title: "Quick Misconception Quiz",
+                quiz_q1: "If the total surface area of Solid A is 236 cm² and Solid B is 90 cm², with a contact square face of 25 cm², why is the total surface area NOT 326 cm²?",
+                quiz_opt_a: "Because 236 + 90 equals 300 cm².",
+                quiz_opt_b: "Because 2 contact faces (top of cuboid & bottom of pyramid) become internal and are no longer outer surfaces.",
+                quiz_opt_c: "Because we only subtract 1 contact face instead of 2.",
+                modal_title: "Year 6 Lesson Guide: Composite 3D Shapes",
+                modal_subtitle: "KSSR Semakan Mathematics Topic 6.0 Space",
+                modal_step1_title: "1. What is a Composite 3D Shape?",
+                modal_step1_desc: "A composite 3D shape is formed by attaching two or more simple solids together. In this lesson, we attach a Square Pyramid on top of a Rectangular Cuboid.",
+                modal_step2_title: "2. Use Slider 1: Separate Solids",
+                modal_step2_desc: "Pull the 'Separate Solids' slider to lift the pyramid up. Notice the bright red/magenta faces on both solids! That is the overlapping contact interface (5cm x 5cm = 25 cm²).",
+                modal_step3_title: "3. Use Slider 2: 2D Net Unfolding",
+                modal_step3_desc: "Pull the '2D Net Unfolding' slider to flatten all exposed faces. Count all exposed faces and observe how the contact face is excluded from outer surface calculation!",
+                modal_start_btn: "Got it! Start Exploring 🚀",
+                footer_curriculum: "KSSR Semakan Year 6 Mathematics • Topic 6.0 Space",
+                quiz_correct: "🎉 Outstanding! You got it right! When two solids are joined, 2 contact faces are hidden inside, so we subtract 2 × 25 = 50 cm².",
+                quiz_incorrect: "❌ Try again! Hint: Look at the red contact faces when you pull Slider 1. Are they visible on the outside when joined?"
+            },
+            bm: {
+                topic_code: "Topik 6.0 Ruang",
+                app_title: "Peneroka Luas Permukaan Bentuk Gubahan 3D",
+                guide_btn: "Panduan Pembelajaran",
+                btn_reset_cam: "Set Semula Pandangan 3D",
+                btn_top_cam: "Pandangan Atas",
+                btn_contact_zoom: "Zoom Muka Sentuhan",
+                shape_title: "Piramid Tapak Segi Empat Sama + Kuboid",
+                mode_attached: "Keadaan Bercantum (Bentuk Gubahan)",
+                mode_separated: "Bongkah Terpisah (Pandangan Letupan)",
+                mode_unfolded: "Keadaan Bentangan 2D Fasa Ratap",
+                btn_hide_dims: "Sembunyi Ukuran",
+                btn_show_dims: "Tunjuk Ukuran",
+                btn_contact_glow: "Lampu Muka: ON",
+                btn_contact_glow_off: "Lampu Muka: OFF",
+                orbit_hint: "Seret untuk Putar | Tatal untuk Zoom",
+                slider_sep_title: "Ceraikan Bongkah (0cm - 10cm)",
+                sep_label_attached: "Bercantum (0 cm)",
+                sep_label_hidden_revealed: "Muka Sentuhan Tersembunyi Kelihatan!",
+                sep_label_fully_separated: "Terpisah Sepenuhnya (10 cm)",
+                slider_unfold_title: "Bentangan 2D (0% - 100%)",
+                btn_quick_unfold: "Buka Bentangan",
+                btn_quick_fold: "Tutup ke 3D",
+                unfold_3d: "Bongkah Gubahan 3D (0%)",
+                unfold_flat: "Bentangan 2D Rata (100%)",
+                misconception_header: "Miskonsepsi Lazim Murid Tahun 6!",
+                key_concept: "Konsep Kunci",
+                misconception_desc: "Murid sering tersilap menambah jumlah luas permukaan Bongkah A + Bongkah B secara terus (236 + 90 = 326 cm²). Apabila bongkah dicantumkan, muka sentuhan bertindih menjadi tersembunyi di DALAM dan BUKAN LAGI sebahagian daripada permukaan luar!",
+                contact_deduction_note: "Muka Sentuhan Tersembunyi = 2 permukaan × 25 cm² = 50 cm²",
+                reasoning_title: "Penakulan Matematik",
+                real_time_tag: "Pengiraan Langsung",
+                formula_label: "Formula Umum:",
+                solid_a_title: "Bongkah A: Kuboid (8cm × 5cm × 6cm)",
+                solid_b_title: "Bongkah B: Piramid Segi Empat Sama (5cm × 5cm, Tinggi Senget 6.5cm)",
+                contact_interface_title: "Luas Muka Sentuhan (Bertindih)",
+                total_sa_label: "Jumlah Luas Permukaan Sebenar",
+                quiz_title: "Kuiz Cabaran Miskonsepsi",
+                quiz_q1: "Jika luas permukaan Bongkah A ialah 236 cm² dan Bongkah B ialah 90 cm², dengan muka sentuhan 25 cm², mengapa jumlah luas permukaan BUKAN 326 cm²?",
+                quiz_opt_a: "Kerana 236 + 90 bersamaan dengan 300 cm².",
+                quiz_opt_b: "Kerana 2 permukaan sentuhan (atas kuboid & bawah piramid) berada di dalam dan bukan permukaan luar.",
+                quiz_opt_c: "Kerana kita hanya perlu menolak 1 muka sentuhan sahaja.",
+                modal_title: "Panduan Pelajaran Tahun 6: Bentuk Gubahan 3D",
+                modal_subtitle: "KSSR Semakan Matematik Topik 6.0 Ruang",
+                modal_step1_title: "1. Apakah Bentuk Gubahan 3D?",
+                modal_step1_desc: "Bentuk gubahan 3D dihasilkan dengan mencantumkan dua atau lebih bongkah. Dalam pelajaran ini, Piramid Segi Empat Sama dicantumkan di atas Kuboid.",
+                modal_step2_title: "2. Guna Gelangsar 1: Ceraikan Bongkah",
+                modal_step2_desc: "Tarik gelangsar 'Ceraikan Bongkah' untuk mengangkat piramid. Perhatikan permukaan MERAH TERANG/MAGENTA pada kedua-dua bongkah! Itulah muka sentuhan bertindih (5cm x 5cm = 25 cm²).",
+                modal_step3_title: "3. Guna Gelangsar 2: Bentangan 2D",
+                modal_step3_desc: "Tarik gelangsar 'Bentangan 2D' untuk meratakan semua permukaan luar. Bilang semua muka luar dan fahami mengapa muka sentuhan dikeluarkan!",
+                modal_start_btn: "Faham! Mula Meneroka 🚀",
+                footer_curriculum: "KSSR Semakan Matematik Tahun 6 • Topik 6.0 Ruang",
+                quiz_correct: "🎉 Syabas! Jawapan anda tepat! Apabila dua bongkah dicantumkan, 2 muka sentuhan tersembunyi di dalam, jadi kita tolak 2 × 25 = 50 cm².",
+                quiz_incorrect: "❌ Cuba lagi! Petunjuk: Perhatikan muka sentuhan merah apabila anda menarik Gelangsar 1. Adakah ia kelihatan dari luar apabila bercantum?"
+            }
+        };
+
+        let currentLang = 'en';
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (i18n[lang] && i18n[lang][key]) {
+                    el.innerText = i18n[lang][key];
+                }
+            });
+
+            // Update language toggle button UI
+            const enBtn = document.getElementById('langENBtn');
+            const bmBtn = document.getElementById('langBMBtn');
+            if (lang === 'en') {
+                enBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-indigo-700 shadow-sm";
+                bmBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:text-slate-900";
+            } else {
+                bmBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-indigo-700 shadow-sm";
+                enBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:text-slate-900";
+            }
+
+            // Update dynamic text states
+            updateViewStateText();
+            updateDimensionLabels();
+        }
+
+
+        /* ==========================================================================
+           2. AUDIO SYNTHESIZER (WEB AUDIO API FOR KID-FRIENDLY FEEDBACK)
+           ========================================================================== */
+        let audioEnabled = true;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) audioCtx = new AudioContext();
+            }
+        }
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            const icon = document.getElementById('soundIcon');
+            if (audioEnabled) {
+                icon.className = "fa-solid fa-volume-high text-indigo-600";
+                playTone(523.25, 0.1, 'sine'); // C5 chime
+            } else {
+                icon.className = "fa-solid fa-volume-xmark text-slate-400";
+            }
+        }
+
+        function playTone(freq, duration = 0.1, type = 'sine') {
+            if (!audioEnabled) return;
+            initAudio();
+            if (!audioCtx) return;
+
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {
+                // audio context blocked or not active
+            }
+        }
+
+        function playSuccessSound() {
+            if (!audioEnabled) return;
+            playTone(523.25, 0.1, 'triangle'); // C5
+            setTimeout(() => playTone(659.25, 0.1, 'triangle'), 100); // E5
+            setTimeout(() => playTone(783.99, 0.2, 'triangle'), 200); // G5
+        }
+
+
+        /* ==========================================================================
+           3. THREE.JS 3D SCENE SETUP & SHAPE GEOMETRIES
+           ========================================================================== */
+        let scene, camera, renderer, controls;
+        let container = document.getElementById('canvas3dContainer');
+
+        // Main Groups & Meshes
+        let mainGroup;
+        let cuboidGroup, pyramidGroup;
+        let showDimensions = true;
+        let showHighlight = true;
+
+        // Separation & Unfold Values
+        let currentSeparation = 0.0; // 0 to 10 cm
+        let currentUnfold = 0.0;     // 0 to 1 (0% to 100%)
+
+        // Materials & Colors
+        const COLOR_CUBOID = 0x3b82f6;      // Soft Blue
+        const COLOR_PYRAMID = 0x8b5cf6;     // Soft Purple
+        const COLOR_CONTACT = 0xff0055;     // Bright Magenta / Neon Red Contact Face
+        const COLOR_EDGE = 0x0f172a;        // Dark Slate Edges
+
+        // Dimension markers array
+        let labelElements = [];
+
+        function init3DScene() {
+            // Create Scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xf8fafc);
+
+            // Create Camera
+            const aspect = container.clientWidth / container.clientHeight;
+            camera = new THREE.PerspectiveCamera(45, aspect, 0.1, 1000);
+            camera.position.set(16, 14, 22);
+
+            // Create Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            container.appendChild(renderer.domElement);
+
+            // Orbit Controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxPolarAngle = Math.PI / 2 + 0.1; // Limit below ground
+            controls.minDistance = 8;
+            controls.maxDistance = 50;
+            controls.target.set(0, 4.5, 0);
+
+            // Lighting Setup
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(15, 25, 15);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 1024;
+            dirLight.shadow.mapSize.height = 1024;
+            dirLight.shadow.bias = -0.0005;
+            scene.add(dirLight);
+
+            const fillLight = new THREE.DirectionalLight(0x93c5fd, 0.4);
+            fillLight.position.set(-15, 10, -15);
+            scene.add(fillLight);
+
+            // Ground Grid Plate
+            const gridHelper = new THREE.GridHelper(30, 30, 0xcb358, 0xe2e8f0);
+            gridHelper.position.y = -0.01;
+            scene.add(gridHelper);
+
+            // Build Main 3D Shape
+            buildCompositeShape();
+
+            // Create 3D Dimension Labels Overlay
+            create3DLabels();
+
+            // Handle Window Resize
+            window.addEventListener('resize', onWindowResize);
+
+            // Start Animation Loop
+            animate();
+        }
+
+
+        /* ==========================================================================
+           4. CONSTRUCTING THE 3D COMPOSITE SHAPE WITH UNFOLDING PIVOTS
+           ========================================================================== */
+        /*
+           Dimensions:
+           - Cuboid: Length (X) = 8 cm, Height (Y) = 6 cm, Width (Z) = 5 cm
+             Centered at origin X=0, Z=0, Y from 0 to 6.
+           - Pyramid: Base (X) = 5 cm, Base (Z) = 5 cm, Height = 6 cm, Slant Height = 6.5 cm
+             Positioned on top of Cuboid at Y = 6 + separation.
+           - Contact Face: 5 cm x 5 cm square at Y = 6 (on Cuboid top) and bottom of Pyramid.
+        */
+
+        // Face meshes for unfolding animation
+        let cuboidBottomMesh, cuboidFrontPivot, cuboidBackPivot, cuboidLeftPivot, cuboidRightPivot;
+        let cuboidTopFrontMesh, cuboidTopBackMesh; // Top face divided outer parts
+        let cuboidContactTopMesh, pyramidContactBottomMesh;
+
+        let pyramidSideFrontPivot, pyramidSideBackPivot, pyramidSideLeftPivot, pyramidSideRightPivot;
+
+        function buildCompositeShape() {
+            mainGroup = new THREE.Group();
+            scene.add(mainGroup);
+
+            cuboidGroup = new THREE.Group();
+            pyramidGroup = new THREE.Group();
+
+            mainGroup.add(cuboidGroup);
+            mainGroup.add(pyramidGroup);
+
+            // Common Materials
+            const matCuboid = new THREE.MeshStandardMaterial({
+                color: COLOR_CUBOID,
+                roughness: 0.3,
+                metalness: 0.1,
+                side: THREE.DoubleSide
+            });
+
+            const matPyramid = new THREE.MeshStandardMaterial({
+                color: COLOR_PYRAMID,
+                roughness: 0.3,
+                metalness: 0.1,
+                side: THREE.DoubleSide
+            });
+
+            const matContact = new THREE.MeshStandardMaterial({
+                color: COLOR_CONTACT,
+                roughness: 0.2,
+                metalness: 0.2,
+                emissive: COLOR_CONTACT,
+                emissiveIntensity: 0.35,
+                side: THREE.DoubleSide
+            });
+
+            const lineMat = new THREE.LineBasicMaterial({ color: COLOR_EDGE, linewidth: 2 });
+
+            // ----------------------------------------------------------------------
+            // A. CUBOID FACES & UNFOLDING PIVOTS
+            // Dimensions: X = 8, Y = 6, Z = 5
+            // ----------------------------------------------------------------------
+
+            // 1. Cuboid Bottom Face (8 x 5 at Y = 0)
+            const geoBottom = new THREE.PlaneGeometry(8, 5);
+            geoBottom.rotateX(-Math.PI / 2);
+            geoBottom.translate(0, 0, 0);
+            cuboidBottomMesh = new THREE.Mesh(geoBottom, matCuboid);
+            cuboidBottomMesh.add(new THREE.LineSegments(new THREE.WireframeGeometry(geoBottom), lineMat));
+            cuboidGroup.add(cuboidBottomMesh);
+
+            // 2. Cuboid Front Face (8 x 6) - Hinge at Z = +2.5, Y = 0
+            cuboidFrontPivot = new THREE.Group();
+            cuboidFrontPivot.position.set(0, 0, 2.5);
+            cuboidGroup.add(cuboidFrontPivot);
+
+            const geoFront = new THREE.PlaneGeometry(8, 6);
+            geoFront.translate(0, 3, 0); // shift up so bottom edge is at pivot
+            const meshFront = new THREE.Mesh(geoFront, matCuboid);
+            meshFront.add(new THREE.LineSegments(new THREE.WireframeGeometry(geoFront), lineMat));
+            cuboidFrontPivot.add(meshFront);
+
+            // 3. Cuboid Back Face (8 x 6) - Hinge at Z = -2.5, Y = 0
+            cuboidBackPivot = new THREE.Group();
+            cuboidBackPivot.position.set(0, 0, -2.5);
+            cuboidGroup.add(cuboidBackPivot);
+
+            const geoBack = new THREE.PlaneGeometry(8, 6);
+            geoBack.rotateY(Math.PI);
+            geoBack.translate(0, 3, 0);
+            const meshBack = new THREE.Mesh(geoBack, matCuboid);
+            meshBack.add(new THREE.LineSegments(new THREE.WireframeGeometry(geoBack), lineMat));
+            cuboidBackPivot.add(meshBack);
+
+            // 4. Cuboid Left Face (6 x 5 -> height 6, width 5 along Z) - Hinge at X = -4, Y = 0
+            cuboidLeftPivot = new THREE.Group();
+            cuboidLeftPivot.position.set(-4, 0, 0);
+            cuboidGroup.add(cuboidLeftPivot);
+
+            const geoLeft = new THREE.PlaneGeometry(5, 6);
+            geoLeft.rotateY(-Math.PI / 2);
+            geoLeft.translate(0, 3, 0);
+            const meshLeft = new THREE.Mesh(geoLeft, matCuboid);
+            meshLeft.add(new THREE.LineSegments(new THREE.WireframeGeometry(geoLeft), lineMat));
+            cuboidLeftPivot.add(meshLeft);
+
+            // 5. Cuboid Right Face (6 x 5) - Hinge at X = +4, Y = 0
+            cuboidRightPivot = new THREE.Group();
+            cuboidRightPivot.position.set(4, 0, 0);
+            cuboidGroup.add(cuboidRightPivot);
+
+            const geoRight = new THREE.PlaneGeometry(5, 6);
+            geoRight.rotateY(Math.PI / 2);
+            geoRight.translate(0, 3, 0);
+            const meshRight = new THREE.Mesh(geoRight, matCuboid);
+            meshRight.add(new THREE.LineSegments(new THREE.WireframeGeometry(geoRight), lineMat));
+            cuboidRightPivot.add(meshRight);
+
+            // 6. Cuboid Top Face (8 x 5 at Y = 6):
+            // Center 5x5 region is the Contact Interface Face on Cuboid
+            // Left outer region: 1.5 x 5 (from X = -4 to -2.5)
+            // Right outer region: 1.5 x 5 (from X = 2.5 to 4)
+            const geoTopLeft = new THREE.PlaneGeometry(1.5, 5);
+            geoTopLeft.rotateX(-Math.PI / 2);
+            geoTopLeft.translate(-3.25, 6, 0);
+            cuboidTopFrontMesh = new THREE.Mesh(geoTopLeft, matCuboid);
+            cuboidTopFrontMesh.add(new THREE.LineSegments(new THREE.WireframeGeometry(geoTopLeft), lineMat));
+            cuboidGroup.add(cuboidTopFrontMesh);
+
+            const geoTopRight = new THREE.PlaneGeometry(1.5, 5);
+            geoTopRight.rotateX(-Math.PI / 2);
+            geoTopRight.translate(3.25, 6, 0);
+            cuboidTopBackMesh = new THREE.Mesh(geoTopRight, matCuboid);
+            cuboidTopBackMesh.add(new THREE.LineSegments(new THREE.WireframeGeometry(geoTopRight), lineMat));
+            cuboidGroup.add(cuboidTopBackMesh);
+
+            // Contact Top Face on Cuboid (5 x 5) at Y = 6
+            const geoContactTop = new THREE.PlaneGeometry(5, 5);
+            geoContactTop.rotateX(-Math.PI / 2);
+            geoContactTop.translate(0, 6, 0);
+            cuboidContactTopMesh = new THREE.Mesh(geoContactTop, matContact);
+            cuboidContactTopMesh.add(new THREE.LineSegments(new THREE.WireframeGeometry(geoContactTop), lineMat));
+            cuboidGroup.add(cuboidContactTopMesh);
+
+
+            // ----------------------------------------------------------------------
+            // B. PYRAMID FACES & UNFOLDING PIVOTS
+            // Base = 5 x 5, Height = 6 cm.
+            // Positioned at Y = 6 (bottom of pyramid)
+            // ----------------------------------------------------------------------
+
+            // 1. Pyramid Bottom Contact Base (5 x 5) at Y = 6
+            const geoPyramidContact = new THREE.PlaneGeometry(5, 5);
+            geoPyramidContact.rotateX(Math.PI / 2); // Facing downwards
+            geoPyramidContact.translate(0, 6, 0);
+            pyramidContactBottomMesh = new THREE.Mesh(geoPyramidContact, matContact);
+            pyramidContactBottomMesh.add(new THREE.LineSegments(new THREE.WireframeGeometry(geoPyramidContact), lineMat));
+            pyramidGroup.add(pyramidContactBottomMesh);
+
+            // 2. Triangular Sides (4 faces)
+            // Each side is an isosceles triangle with base 5 cm and height (slant height) 6.5 cm.
+            // Create single triangle geometry: Base = 5, Height = 6.5
+            const createTriangleGeo = () => {
+                const geom = new THREE.BufferGeometry();
+                // Base from (-2.5, 0, 0) to (2.5, 0, 0), Apex at (0, 6.5, 0) in local plane coords
+                const vertices = new Float32Array([
+                    -2.5, 0, 0,
+                     2.5, 0, 0,
+                     0.0, 6.5, 0
+                ]);
+                const uvs = new Float32Array([
+                    0.0, 0.0,
+                    1.0, 0.0,
+                    0.5, 1.0
+                ]);
+                geom.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+                geom.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+                geom.computeVertexNormals();
+                return geom;
+            };
+
+            // Calculate 3D tilt angle theta for closed 3D pyramid:
+            // tan(theta) = Pyramid Height (6) / Half Base (2.5) = 2.4 => theta = Math.atan(2.4) ~ 67.38 degrees
+            const pyTiltAngle = Math.atan(6 / 2.5); // Angle from horizontal
+
+            // --- Front Triangle Pivot (Hinge at Z = +2.5, Y = 6)
+            pyramidSideFrontPivot = new THREE.Group();
+            pyramidSideFrontPivot.position.set(0, 6, 2.5);
+            pyramidSideFrontPivot.rotation.y = 0;
+            pyramidGroup.add(pyramidSideFrontPivot);
+
+            const triFrontGeo = createTriangleGeo();
+            const meshPyFront = new THREE.Mesh(triFrontGeo, matPyramid);
+            meshPyFront.add(new THREE.LineSegments(new THREE.WireframeGeometry(triFrontGeo), lineMat));
+            pyramidSideFrontPivot.add(meshPyFront);
+
+            // --- Back Triangle Pivot (Hinge at Z = -2.5, Y = 6)
+            pyramidSideBackPivot = new THREE.Group();
+            pyramidSideBackPivot.position.set(0, 6, -2.5);
+            pyramidSideBackPivot.rotation.y = Math.PI;
+            pyramidGroup.add(pyramidSideBackPivot);
+
+            const triBackGeo = createTriangleGeo();
+            const meshPyBack = new THREE.Mesh(triBackGeo, matPyramid);
+            meshPyBack.add(new THREE.LineSegments(new THREE.WireframeGeometry(triBackGeo), lineMat));
+            pyramidSideBackPivot.add(meshPyBack);
+
+            // --- Left Triangle Pivot (Hinge at X = -2.5, Y = 6)
+            pyramidSideLeftPivot = new THREE.Group();
+            pyramidSideLeftPivot.position.set(-2.5, 6, 0);
+            pyramidSideLeftPivot.rotation.y = Math.PI / 2;
+            pyramidGroup.add(pyramidSideLeftPivot);
+
+            const triLeftGeo = createTriangleGeo();
+            const meshPyLeft = new THREE.Mesh(triLeftGeo, matPyramid);
+            meshPyLeft.add(new THREE.LineSegments(new THREE.WireframeGeometry(triLeftGeo), lineMat));
+            pyramidSideLeftPivot.add(meshPyLeft);
+
+            // --- Right Triangle Pivot (Hinge at X = +2.5, Y = 6)
+            pyramidSideRightPivot = new THREE.Group();
+            pyramidSideRightPivot.position.set(2.5, 6, 0);
+            pyramidSideRightPivot.rotation.y = -Math.PI / 2;
+            pyramidGroup.add(pyramidSideRightPivot);
+
+            const triRightGeo = createTriangleGeo();
+            const meshPyRight = new THREE.Mesh(triRightGeo, matPyramid);
+            meshPyRight.add(new THREE.LineSegments(new THREE.WireframeGeometry(triRightGeo), lineMat));
+            pyramidSideRightPivot.add(meshPyRight);
+        }
+
+
+        /* ==========================================================================
+           5. DYNAMIC UPDATE ROUTINES (SEPARATION & UNFOLDING ANIMATION)
+           ========================================================================== */
+        function update3DPositions() {
+            // A. Update Vertical Separation (Exploded View)
+            pyramidGroup.position.y = currentSeparation;
+
+            // B. Update Unfolding Interpolation (0.0 to 1.0)
+            const u = currentUnfold;
+            const pyTiltAngle = Math.atan(6 / 2.5); // ~ 67.38 deg (1.176 rad)
+
+            // 1. Cuboid Side Unfolding (fold outward 90 deg = Math.PI / 2)
+            cuboidFrontPivot.rotation.x = u * (Math.PI / 2);
+            cuboidBackPivot.rotation.x = -u * (Math.PI / 2);
+            cuboidLeftPivot.rotation.z = -u * (Math.PI / 2);
+            cuboidRightPivot.rotation.z = u * (Math.PI / 2);
+
+            // 2. Pyramid Triangular Faces Unfolding (from tilted angle to 0 deg flat horizontal plane)
+            // When closed: rotation around local X axis is (Math.PI/2 - pyTiltAngle) ~ 22.62 deg
+            // When fully unfolded: rotation around local X axis is 0 (lying flat in horizontal plane)
+            const closedAngle = (Math.PI / 2 - pyTiltAngle);
+            const currentPyAngle = (1 - u) * closedAngle;
+
+            pyramidSideFrontPivot.rotation.x = currentPyAngle;
+            pyramidSideBackPivot.rotation.x = currentPyAngle;
+            pyramidSideLeftPivot.rotation.x = currentPyAngle;
+            pyramidSideRightPivot.rotation.x = currentPyAngle;
+
+            // Position 3D Labels to follow separation
+            update3DLabelPositions();
+        }
+
+        /* Handler for Separation Slider Input */
+        function onSeparationChange(val) {
+            currentSeparation = parseFloat(val);
+            document.getElementById('sepValueBadge').innerText = currentSeparation.toFixed(1) + " cm";
+
+            // Sound feedback
+            if (Math.abs(currentSeparation - 5) < 0.2 || currentSeparation === 0) {
+                playTone(400 + currentSeparation * 30, 0.05, 'sine');
+            }
+
+            update3DPositions();
+            updateViewStateText();
+            updateMathReasoningHighlight();
+        }
+
+        /* Handler for Unfold Slider Input */
+        function onUnfoldChange(val) {
+            currentUnfold = parseFloat(val) / 100.0;
+            document.getElementById('unfoldValueBadge').innerText = Math.round(currentUnfold * 100) + "%";
+
+            // Toggle quick unfold button text
+            const quickBtnText = document.getElementById('quickUnfoldText');
+            if (currentUnfold > 0.5) {
+                quickBtnText.innerText = i18n[currentLang].btn_quick_fold;
+            } else {
+                quickBtnText.innerText = i18n[currentLang].btn_quick_unfold;
+            }
+
+            update3DPositions();
+            updateViewStateText();
+        }
+
+        function toggleQuickUnfold() {
+            const slider = document.getElementById('unfoldSlider');
+            if (currentUnfold > 0.5) {
+                slider.value = 0;
+            } else {
+                slider.value = 100;
+            }
+            onUnfoldChange(slider.value);
+            playTone(600, 0.1, 'triangle');
+        }
+
+        function updateViewStateText() {
+            const stateEl = document.getElementById('currentViewStateText');
+            const statusInd = document.getElementById('sepStatusIndicator');
+
+            if (currentUnfold > 0.1) {
+                stateEl.innerText = i18n[currentLang].mode_unfolded;
+                statusInd.innerText = "2D Net View";
+                statusInd.className = "bg-purple-800/80 px-2 py-0.5 rounded text-[10px] text-purple-200";
+            } else if (currentSeparation > 0.2) {
+                stateEl.innerText = i18n[currentLang].mode_separated;
+                statusInd.innerText = "Separated";
+                statusInd.className = "bg-rose-800/80 px-2 py-0.5 rounded text-[10px] text-rose-200 font-bold";
+            } else {
+                stateEl.innerText = i18n[currentLang].mode_attached;
+                statusInd.innerText = "Attached";
+                statusInd.className = "bg-emerald-800/80 px-2 py-0.5 rounded text-[10px] text-emerald-200";
+            }
+        }
+
+        function updateMathReasoningHighlight() {
+            const contactBox = document.getElementById('contactMathBox');
+            if (currentSeparation > 0.5) {
+                contactBox.className = "p-3 bg-rose-100 rounded-2xl border-2 border-rose-500 shadow-md transform scale-[1.02] transition-all";
+            } else {
+                contactBox.className = "p-3 bg-rose-50/90 rounded-2xl border-2 border-rose-300 flex items-center justify-between transition-all";
+            }
+        }
+
+
+        /* ==========================================================================
+           6. 3D HTML OVERLAY DIMENSION LABELS
+           ========================================================================== */
+        const dimensionsData = [
+            { text: "8 cm (Length)", pos: new THREE.Vector3(0, -0.5, 2.8), color: "bg-blue-600 text-white" },
+            { text: "5 cm (Width)", pos: new THREE.Vector3(4.3, -0.5, 0), color: "bg-blue-600 text-white" },
+            { text: "6 cm (Cuboid Height)", pos: new THREE.Vector3(-4.3, 3, 2.7), color: "bg-blue-700 text-white" },
+            { text: "5 cm (Pyramid Base)", pos: new THREE.Vector3(0, 5.7, 2.7), color: "bg-purple-600 text-white", attachToPyramid: true },
+            { text: "6.5 cm (Slant Height)", pos: new THREE.Vector3(1.6, 9.2, 1.6), color: "bg-purple-700 text-white", attachToPyramid: true }
+        ];
+
+        function create3DLabels() {
+            dimensionsData.forEach((d, idx) => {
+                const el = document.createElement('div');
+                el.className = `label-3d absolute ${d.color} opacity-90 backdrop-blur-sm z-20 transition-all shadow-md`;
+                el.id = `label3d_${idx}`;
+                el.innerText = d.text;
+                container.appendChild(el);
+                labelElements.push({ element: el, basePos: d.pos.clone(), attachToPyramid: d.attachToPyramid });
+            });
+            updateDimensionLabels();
+        }
+
+        function updateDimensionLabels() {
+            if (!labelElements.length) return;
+            labelElements[0].element.innerText = currentLang === 'bm' ? "8 cm (Panjang)" : "8 cm (Length)";
+            labelElements[1].element.innerText = currentLang === 'bm' ? "5 cm (Lebar)" : "5 cm (Width)";
+            labelElements[2].element.innerText = currentLang === 'bm' ? "6 cm (Tinggi Kuboid)" : "6 cm (Cuboid Height)";
+            labelElements[3].element.innerText = currentLang === 'bm' ? "5 cm (Tapak Piramid)" : "5 cm (Pyramid Base)";
+            labelElements[4].element.innerText = currentLang === 'bm' ? "6.5 cm (Tinggi Senget)" : "6.5 cm (Slant Height)";
+        }
+
+        function update3DLabelPositions() {
+            if (!showDimensions || currentUnfold > 0.2) {
+                labelElements.forEach(item => item.element.style.display = 'none');
+                return;
+            }
+
+            const tempV = new THREE.Vector3();
+            labelElements.forEach(item => {
+                tempV.copy(item.basePos);
+                if (item.attachToPyramid) {
+                    tempV.y += currentSeparation;
+                }
+
+                // Project 3D coordinate to 2D screen coordinate
+                tempV.project(camera);
+
+                // Convert to canvas screen pixels
+                const x = (tempV.x * .5 + .5) * container.clientWidth;
+                const y = (-(tempV.y * .5) + .5) * container.clientHeight;
+
+                // Check if point is behind camera
+                if (tempV.z > 1) {
+                    item.element.style.display = 'none';
+                } else {
+                    item.element.style.display = 'block';
+                    item.element.style.left = `${x}px`;
+                    item.element.style.top = `${y}px`;
+                    item.element.style.transform = 'translate(-50%, -50%)';
+                }
+            });
+        }
+
+        function toggleDimensions() {
+            showDimensions = !showDimensions;
+            const btnText = document.getElementById('labelsBtnText');
+            const icon = document.getElementById('labelsIcon');
+
+            if (showDimensions) {
+                btnText.innerText = i18n[currentLang].btn_hide_dims;
+                icon.className = "fa-solid fa-ruler-combined text-indigo-600";
+            } else {
+                btnText.innerText = i18n[currentLang].btn_show_dims;
+                icon.className = "fa-solid fa-ruler text-slate-400";
+            }
+            update3DLabelPositions();
+            playTone(500, 0.05);
+        }
+
+        function toggleContactHighlight() {
+            showHighlight = !showHighlight;
+            const btn = document.getElementById('toggleHighlightBtn');
+            const text = document.getElementById('highlightBtnText');
+
+            if (showHighlight) {
+                cuboidContactTopMesh.material.emissiveIntensity = 0.35;
+                pyramidContactBottomMesh.material.emissiveIntensity = 0.35;
+                btn.className = "px-3 py-1.5 bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold rounded-xl shadow-md flex items-center space-x-1.5 transition";
+                text.innerText = i18n[currentLang].btn_contact_glow;
+            } else {
+                cuboidContactTopMesh.material.emissiveIntensity = 0.0;
+                pyramidContactBottomMesh.material.emissiveIntensity = 0.0;
+                btn.className = "px-3 py-1.5 bg-slate-300 hover:bg-slate-400 text-slate-700 text-xs font-bold rounded-xl shadow-md flex items-center space-x-1.5 transition";
+                text.innerText = i18n[currentLang].btn_contact_glow_off;
+            }
+            playTone(550, 0.05);
+        }
+
+
+        /* ==========================================================================
+           7. CAMERA CONTROL PRESETS
+           ========================================================================== */
+        function resetCameraView() {
+            animateCameraTo(16, 14, 22, 0, 4.5, 0);
+            playTone(600, 0.08);
+        }
+
+        function setCameraPreset(type) {
+            if (type === 'top') {
+                animateCameraTo(0, 32, 0.1, 0, 4.5, 0);
+            } else if (type === 'contact') {
+                // Automatically separate slightly if fully attached to highlight contact face
+                if (currentSeparation < 1.5) {
+                    const slider = document.getElementById('separationSlider');
+                    slider.value = 4.0;
+                    onSeparationChange(4.0);
+                }
+                animateCameraTo(8, 9, 10, 0, 6, 0);
+            }
+            playTone(650, 0.08);
+        }
+
+        function animateCameraTo(targetX, targetY, targetZ, lookX, lookY, lookZ) {
+            const startCam = camera.position.clone();
+            const startLook = controls.target.clone();
+            const targetCam = new THREE.Vector3(targetX, targetY, targetZ);
+            const targetLook = new THREE.Vector3(lookX, lookY, lookZ);
+
+            let progress = 0;
+            const duration = 30; // frames (~0.5s)
+
+            function stepCam() {
+                progress++;
+                const t = progress / duration;
+                const easeT = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t; // Ease in-out
+
+                camera.position.lerpVectors(startCam, targetCam, easeT);
+                controls.target.lerpVectors(startLook, targetLook, easeT);
+                controls.update();
+
+                if (progress < duration) {
+                    requestAnimationFrame(stepCam);
+                }
+            }
+            stepCam();
+        }
+
+        function onWindowResize() {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            update3DLabelPositions();
+        }
+
+
+        /* ==========================================================================
+           8. INTERACTIVE QUIZ MODULE
+           ========================================================================== */
+        function checkQuizAnswer(isCorrect, buttonEl) {
+            const feedbackEl = document.getElementById('quizFeedback');
+            feedbackEl.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-900', 'bg-rose-100', 'text-rose-900');
+
+            if (isCorrect) {
+                feedbackEl.classList.add('bg-emerald-100', 'text-emerald-900', 'border', 'border-emerald-300');
+                feedbackEl.innerHTML = i18n[currentLang].quiz_correct;
+                playSuccessSound();
+
+                // Trigger celebration confetti
+                if (window.confetti) {
+                    confetti({
+                        particleCount: 80,
+                        spread: 70,
+                        origin: { y: 0.7 }
+                    });
+                }
+            } else {
+                feedbackEl.classList.add('bg-rose-100', 'text-rose-900', 'border', 'border-rose-300');
+                feedbackEl.innerHTML = i18n[currentLang].quiz_incorrect;
+                playTone(220, 0.25, 'sawtooth');
+            }
+        }
+
+
+        /* ==========================================================================
+           9. GUIDED TUTORIAL MODAL HANDLERS
+           ========================================================================== */
+        function openTutorialModal() {
+            const modal = document.getElementById('tutorialModal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.firstElementChild.classList.remove('scale-95');
+                modal.firstElementChild.classList.add('scale-100');
+            }, 10);
+            playTone(700, 0.08);
+        }
+
+        function closeTutorialModal() {
+            const modal = document.getElementById('tutorialModal');
+            modal.classList.add('opacity-0');
+            modal.firstElementChild.classList.remove('scale-100');
+            modal.firstElementChild.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+            playTone(500, 0.08);
+        }
+
+
+        /* ==========================================================================
+           10. ANIMATION LOOP & STARTUP
+           ========================================================================== */
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Gentle idle animation when static
+            if (mainGroup) {
+                // Subtle breathing movement for high quality feel
+                const time = Date.now() * 0.001;
+                cuboidContactTopMesh.material.emissiveIntensity = showHighlight ? 0.35 + Math.sin(time * 3) * 0.15 : 0;
+                pyramidContactBottomMesh.material.emissiveIntensity = showHighlight ? 0.35 + Math.sin(time * 3) * 0.15 : 0;
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+            update3DLabelPositions();
+        }
+
+        // Initialize application once window is loaded
+        window.addEventListener('DOMContentLoaded', () => {
+            init3DScene();
+            setLanguage('en');
+
+            // Open guided tutorial modal on first visit
+            setTimeout(() => {
+                openTutorialModal();
+            }, 600);
+        });
+    </script>
+</body>
+</html>
